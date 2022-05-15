@@ -5,7 +5,7 @@ import (
 )
 
 var (
-	command cmd.Cmd = cmd.CmdServices()
+	command cmd.Cmd = cmd.CmdServicesGearbox()
 )
 
 func main() {
