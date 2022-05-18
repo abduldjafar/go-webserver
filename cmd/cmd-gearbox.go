@@ -4,6 +4,7 @@ import (
 	"flag"
 	"go-webserver/api"
 	"go-webserver/config"
+	"log"
 )
 
 type CmdGearbox interface {
@@ -50,6 +51,7 @@ func (c *cmdGearbox) Run() {
 	endpointsGearbox.SetupConfig(&initConfig, c.Ssl, c.CrtFile, c.CrtKeyFile)
 	endpointsGearbox.SetupStorage(c.Storage)
 	endpointsGearbox.ALL()
+	log.Println(c.Port)
 	endpointsGearbox.Api().Start(":" + c.Port)
 }
 
