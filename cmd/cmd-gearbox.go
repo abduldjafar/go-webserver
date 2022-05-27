@@ -51,6 +51,8 @@ func (c *cmdGearbox) Run() {
 	endpointsGearbox.SetupConfig(&initConfig, c.Ssl, c.CrtFile, c.CrtKeyFile)
 	endpointsGearbox.SetupStorage(c.Storage)
 	endpointsGearbox.ALL()
+	cronToken.SetupConfig(&initConfig)
+	go cronToken.Scheduler()
 	log.Println(c.Port)
 	endpointsGearbox.Api().Start(":" + c.Port)
 }

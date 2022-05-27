@@ -1,5 +1,6 @@
 [kafka]
 topic="topic_testing"
+TokenTopic="attachment_asek_token_4"
 FileConfig=""
 UrlProducer="http://localhost:8080/v1/idx"
 HostUrl="http://localhost:8000/static/"

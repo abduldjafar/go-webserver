@@ -31,14 +31,17 @@ func (c *cronStruct) SetupConfig(config *config.Configuration) {
 }
 func (c *cronStruct) Scheduler() {
 	s := gocron.NewScheduler(time.UTC)
-	_, err := s.Every(1).Minutes().Do(func() {
+	_, err := s.Every(7).Week().Do(func() {
 		c.sendToken()
 	})
 
 	if err != nil {
 		log.Println("error creating scheduler for token")
 	}
+
 	s.StartAsync()
+
+	log.Println("scheduler for creating token started")
 }
 
 func (c *cronStruct) sendToken() {
@@ -46,7 +49,7 @@ func (c *cronStruct) sendToken() {
 
 	url := initConfig.Kafka.UrlProducer + "/cron"
 	token := CreateToken("idx", 7)
-	topic := "attachment_asek_token_4"
+	topic := initConfig.Kafka.TokenTopic
 
 	payload := strings.NewReader("{\n\t\"token\":\"" + token + "\",\n\t\"topic\":\"" + topic + "\"\n}")
 

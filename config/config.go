@@ -21,6 +21,7 @@ type kafka struct {
 	FileConfig  string
 	UrlProducer string
 	HostUrl     string
+	TokenTopic  string
 }
 
 func GetConfig(baseConfig *Configuration) {
