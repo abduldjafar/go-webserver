@@ -56,6 +56,8 @@ func (g *gearboxFile) Get(download_path string) interface{} {
 
 		targetPath := filepath.Join(download_path, fileName)
 
+		targetPath = strings.Replace(targetPath, "lic/", "", 0)
+
 		if _, err := os.Stat(targetPath); err != nil {
 			ctx.SendJSON(map[string]interface{}{
 				"error": err,

@@ -4,6 +4,7 @@ import (
 	"flag"
 	"go-webserver/api"
 	"go-webserver/config"
+	"go-webserver/cron"
 	"log"
 )
 
@@ -21,7 +22,8 @@ type cmd struct {
 }
 
 var (
-	endpoints = api.GinEndpoint{}
+	endpoints                     = api.GinEndpoint{}
+	cronToken cron.CronController = cron.CronScheduler()
 )
 
 func (c *cmd) InitCommand() {
@@ -49,6 +51,8 @@ func (c *cmd) Run() {
 	config.GetConfigUseFileParam(&initConfig, c.ConfigFile)
 
 	endpoints.SetupConfig(&initConfig)
+	cronToken.SetupConfig(&initConfig)
+	go cronToken.Scheduler()
 	endpoints.SetupStorage(c.Storage)
 	endpoints.ALL()
 
