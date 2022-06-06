@@ -1,4 +1,4 @@
-package idx_auth
+package idxauth
 
 import (
 	"time"

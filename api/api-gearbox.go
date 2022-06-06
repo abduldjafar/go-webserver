@@ -15,8 +15,6 @@ type GearboxEndpoint struct {
 }
 
 var (
-	//gearboxRouter = gearbox.New()
-
 	fileController controller.FileController = controller.GearboxImplFileController()
 	newMiddleware  middleware.Middleware     = middleware.ImplMiddleware()
 )
@@ -31,8 +29,7 @@ func (g *GearboxEndpoint) ALL() {
 		g.Router.Get("/idx/token/:topic", fileController.GenerateFileToken().(func(ctx gearbox.Context))),
 	})
 	g.Router.Get("/static/:filename/:token", fileController.Get(g.StoragePath).(func(ctx gearbox.Context)))
-
-	//g.Router = gearboxRouter
+	g.Router.Get("/static", fileController.GetWithQuery(g.StoragePath).(func(ctx gearbox.Context)))
 
 }
 func (g *GearboxEndpoint) SetupStorage(path string) {

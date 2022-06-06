@@ -2,6 +2,7 @@ package cron
 
 import (
 	"fmt"
+	idxauth "go-webserver/auth"
 	"go-webserver/config"
 	"io/ioutil"
 	"log"
@@ -26,6 +27,10 @@ type Token struct {
 	*jwt.StandardClaims
 }
 
+var (
+	auths idxauth.Auth = idxauth.ImplAuthService()
+)
+
 func (c *cronStruct) SetupConfig(config *config.Configuration) {
 	c.config = config
 }
@@ -48,7 +53,7 @@ func (c *cronStruct) sendToken() {
 	initConfig := c.config
 
 	url := initConfig.Kafka.UrlProducer + "/cron"
-	token := CreateToken("idx", 7)
+	token := auths.CreateToken("idx", 7)
 	topic := initConfig.Kafka.TokenTopic
 
 	payload := strings.NewReader("{\n\t\"token\":\"" + token + "\",\n\t\"topic\":\"" + topic + "\"\n}")
@@ -68,25 +73,4 @@ func (c *cronStruct) sendToken() {
 
 func CronScheduler() CronController {
 	return &cronStruct{}
-}
-
-func CreateToken(secret string, day time.Duration) string {
-
-	expiresAt := time.Now().Add(time.Hour * 24 * day).Unix()
-	tk := &Token{
-
-		StandardClaims: &jwt.StandardClaims{
-			ExpiresAt: expiresAt,
-		},
-	}
-
-	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
-
-	tokenString, err := token.SignedString([]byte(secret))
-	if err != nil {
-		log.Println(err)
-	}
-
-	return tokenString
-
 }

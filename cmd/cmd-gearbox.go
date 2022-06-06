@@ -4,7 +4,6 @@ import (
 	"flag"
 	"go-webserver/api"
 	"go-webserver/config"
-	"log"
 )
 
 type CmdGearbox interface {
@@ -53,7 +52,6 @@ func (c *cmdGearbox) Run() {
 	endpointsGearbox.ALL()
 	cronToken.SetupConfig(&initConfig)
 	go cronToken.Scheduler()
-	log.Println(c.Port)
 	endpointsGearbox.Api().Start(":" + c.Port)
 }
 

@@ -1,0 +1,60 @@
+func (g *gearboxFile) sendTokafkaCLient(name string, idxGroup string, topic string, idxTotal string, idxNumber string, file multipart.File, path string) {
+	initConfig := g.config
+	name = strings.ToLower(name)
+	filename := name
+	log.Println("processing file " + filename)
+
+	out, err := os.Create(path + "/" + filename)
+	if err != nil {
+		log.Println(err)
+	} else {
+		defer out.Close()
+		_, err = io.Copy(out, file)
+
+		if err != nil {
+			log.Println(err)
+		} else {
+			url := initConfig.Kafka.UrlProducer + "/produces"
+			name = initConfig.Kafka.HostUrl + name
+
+			// payload := strings.NewReader("{\n\t\"name\":\"" + name + "\",\n\t\"topic\":\"" + topic + "\"\n}")
+			payload := strings.NewReader("{\n\t\"name\":\"" + name + "\",\n\t\"topic\":\"" + topic + "\",\n\t\"idxGroup\":\"" + idxGroup + "\",\n\t\"idxTotal\":" + idxTotal + ",\n\t\"idxNumber\":" + idxNumber + "\n\t\n}")
+
+			req, _ := http.NewRequest("POST", url, payload)
+
+			req.Header.Add("Content-Type", "application/json")
+
+			res, _ := http.DefaultClient.Do(req)
+
+			if res != nil {
+
+				defer res.Body.Close()
+			}
+			log.Println("success save file " + filename)
+
+		}
+
+	}
+
+}
+
+func (g *gearboxFile) sendTokenTokafkaCLient(token string, topic string) {
+	initConfig := g.config
+
+	url := initConfig.Kafka.UrlProducer + "/cron"
+
+	payload := strings.NewReader("{\n\t\"token\":\"" + token + "\",\n\t\"topic\":\"" + topic + "\"\n}")
+
+	req, _ := http.NewRequest("POST", url, payload)
+
+	req.Header.Add("Content-Type", "application/json")
+
+	res, _ := http.DefaultClient.Do(req)
+
+	defer res.Body.Close()
+	body, _ := ioutil.ReadAll(res.Body)
+
+	fmt.Println(res)
+	fmt.Println(string(body))
+
+}

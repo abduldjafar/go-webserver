@@ -178,6 +178,9 @@ func (g *ginFile) Validate(tokenString string, secret string) (*jwt.Token, error
 	return token, err
 }
 
+func (g *ginFile) GetWithQuery(download_path string) interface{} {
+	return nil
+}
 func GinImplFileController() FileController {
 	return &ginFile{}
 }
