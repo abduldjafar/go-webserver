@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"fmt"
 	"go-webserver/config"
 	"io"
@@ -56,6 +57,13 @@ func (g *ginFile) Get(download_path string) interface{} {
 			ctx.String(403, "Look like you attacking me")
 			return
 		}
+
+		if _, err := os.Stat(targetPath); errors.Is(err, os.ErrNotExist) {
+			// path/to/whatever does not exist
+			ctx.String(404, "file not found")
+			return
+		}
+
 		//Seems this headers needed for some browsers (for example without this headers Chrome will download files as txt)
 		ctx.Header("Content-Description", "File Transfer")
 		ctx.Header("Content-Transfer-Encoding", "binary")
@@ -106,7 +114,7 @@ func (g *ginFile) sendTokafkaCLient(name string, idxGroup string, topic string, 
 			name = initConfig.Kafka.HostUrl + name
 
 			// payload := strings.NewReader("{\n\t\"name\":\"" + name + "\",\n\t\"topic\":\"" + topic + "\"\n}")
-			payload := strings.NewReader("{\n\t\"name\":\"" + name + "\",\n\t\"topic\":\"" + topic + "\",\n\t\"idxGroup\":\"" + idxGroup + "\",\n\t\"idxTotal\":" + idxTotal + ",\n\t\"idxNumber\":" + idxNumber + "\n\t\n}")
+			payload := strings.NewReader("{\n\t\"name\":\"" + name + "\",\n\t\"topic\":\"" + topic + "\",\n\t\"idxGroup\":\"" + idxGroup + "\",\n\t\"idxTotal\":" + idxTotal + ",\n\t\"path\":" + initConfig.Kafka.HostUrl + "\",\n\t\"filename\":" + filename + ",\n\t\"idxNumber\":" + idxNumber + "\n\t\n}")
 
 			req, _ := http.NewRequest("POST", url, payload)
 

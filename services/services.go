@@ -12,7 +12,7 @@ import (
 
 type Services interface {
 	PostTokenToKafkaCLient(token string, topic string, url string)
-	PostPathToKafkaClient(name string, fullpathname string, idxGroup string, topic string, idxTotal string, idxNumber string, file multipart.File, path string, url string)
+	PostPathToKafkaClient(name string, fullpathname string, idxGroup string, topic string, idxTotal string, idxNumber string, file multipart.File, path string, url string, HostUrl string)
 }
 
 type idxservices struct {
@@ -32,9 +32,10 @@ func (*idxservices) PostTokenToKafkaCLient(token string, topic string, url strin
 
 	log.Println(string(body))
 }
-func (*idxservices) PostPathToKafkaClient(filename string, fullpathname string, idxGroup string, topic string, idxTotal string, idxNumber string, file multipart.File, path string, url string) {
+func (*idxservices) PostPathToKafkaClient(filename string, fullpathname string, idxGroup string, topic string, idxTotal string, idxNumber string, file multipart.File, path string, url string, HostUrl string) {
 
 	filename = strings.ToLower(filename)
+	fullpathname = strings.Replace(fullpathname, "\\u00", "=", 0)
 
 	log.Println("processing file " + filename)
 
@@ -50,7 +51,7 @@ func (*idxservices) PostPathToKafkaClient(filename string, fullpathname string, 
 		} else {
 
 			// payload := strings.NewReader("{\n\t\"name\":\"" + name + "\",\n\t\"topic\":\"" + topic + "\"\n}")
-			payload := strings.NewReader("{\n\t\"name\":\"" + fullpathname + "\",\n\t\"topic\":\"" + topic + "\",\n\t\"idxGroup\":\"" + idxGroup + "\",\n\t\"idxTotal\":" + idxTotal + ",\n\t\"idxNumber\":" + idxNumber + "\n\t\n}")
+			payload := strings.NewReader("{\n\t\"name\":\"" + fullpathname + "\",\n\t\"topic\":\"" + topic + "\",\n\t\"idxGroup\":\"" + idxGroup + "\",\n\t\"idxTotal\":" + idxTotal + ",\n\t\"path\":\"" + HostUrl + "\",\n\t\"filename\":\"" + filename + "\",\n\t\"idxNumber\":" + idxNumber + "\n\t\n}")
 
 			req, _ := http.NewRequest("POST", url, payload)
 

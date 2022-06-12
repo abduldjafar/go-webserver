@@ -38,8 +38,14 @@ func (a *authService) Validate(tokenString string, secret string) (*jwt.Token, e
 		}
 		return []byte(secret), nil
 	})
+	log.Println(err)
 
-	return token, err
+	if err != nil {
+		return nil, err
+	} else {
+		return token, nil
+	}
+
 }
 
 func (*authService) ExtractTokenMetadata(token *jwt.Token) (*Token, error) {

@@ -46,8 +46,6 @@ func (g *gearboxFile) GenerateFileToken() interface{} {
 func (g *gearboxFile) Get(download_path string) interface{} {
 	return func(ctx gearbox.Context) {
 		fileName := ctx.Param("filename")
-		queryFileName := ctx.Query("file_name")
-		log.Println(queryFileName)
 
 		token := ctx.Param("token")
 
@@ -58,6 +56,8 @@ func (g *gearboxFile) Get(download_path string) interface{} {
 				"error": err.Error(),
 				"code":  500,
 			})
+
+			return
 		}
 
 		fileName = strings.Replace(fileName, "lic/", "", -1)
@@ -71,9 +71,10 @@ func (g *gearboxFile) Get(download_path string) interface{} {
 				"error": err,
 				"code":  500,
 			})
+
+			return
 		}
 
-		log.Println(targetPath)
 		ctx.Context().Response.Header.Set("Content-Description", "File Transfer")
 		ctx.Context().Response.Header.Set("Content-Transfer-Encoding", "binary")
 		ctx.Context().Response.Header.Set("Content-Disposition", "attachment; filename="+fileName)
@@ -96,22 +97,22 @@ func (g *gearboxFile) GetWithQuery(download_path string) interface{} {
 				"error": err.Error(),
 				"code":  500,
 			})
+			return
 		}
 
 		fileName = strings.Replace(fileName, "lic/", "", -1)
 
 		targetPath := filepath.Join(download_path, fileName)
-		log.Println(download_path)
-		log.Println(fileName)
 
 		if _, err := os.Stat(targetPath); err != nil {
 			ctx.SendJSON(map[string]interface{}{
 				"error": err,
 				"code":  500,
 			})
+
+			return
 		}
 
-		log.Println(targetPath)
 		ctx.Context().Response.Header.Set("Content-Description", "File Transfer")
 		ctx.Context().Response.Header.Set("Content-Transfer-Encoding", "binary")
 		ctx.Context().Response.Header.Set("Content-Disposition", "attachment; filename="+fileName)
@@ -131,6 +132,8 @@ func (g *gearboxFile) Create(path string) interface{} {
 				"error": err.Error(),
 				"code":  500,
 			})
+			return
+
 		}
 
 		fileHeader := form.File["file"][0]
@@ -139,18 +142,20 @@ func (g *gearboxFile) Create(path string) interface{} {
 		idxnumber := form.Value["idxnumber"][0]
 		url := initConfig.Kafka.UrlProducer + "/produces"
 		filename := strings.ToLower(fileHeader.Filename)
-		fullpathname := initConfig.Kafka.HostUrl + filename
+		//fullpathname := initConfig.Kafka.HostUrl + filename
 
 		file, err := fileHeader.Open()
 		if err != nil {
 			ctx.SendJSON(map[string]interface{}{
-				"error": err.Error(),
+				"error": err.Error() + " when open " + filename,
 				"code":  500,
 			})
+
+			return
 		}
 
-		go idxservice.PostPathToKafkaClient(filename, fullpathname, idxgroup, initConfig.Kafka.Topic, idxtotal, idxnumber, file, path, url)
-		go idxservice.PostPathToKafkaClient(filename, initConfig.Kafka.HostUrl+"/?file_name="+filename, idxgroup, initConfig.Kafka.Topic+"_query_path", idxtotal, idxnumber, file, path, url)
+		//go idxservice.PostPathToKafkaClient(filename, fullpathname, idxgroup, initConfig.Kafka.Topic, idxtotal, idxnumber, file, path, url, initConfig.Kafka.HostUrl)
+		go idxservice.PostPathToKafkaClient(filename, initConfig.Kafka.HostUrl+"?file_name="+filename, idxgroup, initConfig.Kafka.Topic+"_query_path", idxtotal, idxnumber, file, path, url, initConfig.Kafka.HostUrl)
 
 		//go g.sendTokafkaCLient(fileHeader.Filename, idxgroup, initConfig.Kafka.Topic, idxtotal, idxnumber, file, path)
 
