@@ -140,6 +140,7 @@ func (g *gearboxFile) Create(path string) interface{} {
 		idxgroup := form.Value["idxgroup"][0]
 		idxtotal := form.Value["idxtotal"][0]
 		idxnumber := form.Value["idxnumber"][0]
+		idx_method := form.Value["idx_method"][0]
 		url := initConfig.Kafka.UrlProducer + "/produces"
 		filename := strings.ToLower(fileHeader.Filename)
 		//fullpathname := initConfig.Kafka.HostUrl + filename
@@ -155,7 +156,7 @@ func (g *gearboxFile) Create(path string) interface{} {
 		}
 
 		//go idxservice.PostPathToKafkaClient(filename, fullpathname, idxgroup, initConfig.Kafka.Topic, idxtotal, idxnumber, file, path, url, initConfig.Kafka.HostUrl)
-		go idxservice.PostPathToKafkaClient(filename, initConfig.Kafka.HostUrl+"?file_name="+filename, idxgroup, initConfig.Kafka.Topic+"_query_path", idxtotal, idxnumber, file, path, url, initConfig.Kafka.HostUrl)
+		go idxservice.PostPathToKafkaClient(filename, initConfig.Kafka.HostUrl+"?file_name="+filename, idxgroup, initConfig.Kafka.Topic, idxtotal, idxnumber, file, path, url, initConfig.Kafka.HostUrl, idx_method)
 
 		//go g.sendTokafkaCLient(fileHeader.Filename, idxgroup, initConfig.Kafka.Topic, idxtotal, idxnumber, file, path)
 

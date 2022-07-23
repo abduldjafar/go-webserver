@@ -22,6 +22,7 @@ type kafka struct {
 	UrlProducer string
 	HostUrl     string
 	TokenTopic  string
+	CronTime    string
 }
 
 func GetConfig(baseConfig *Configuration) {

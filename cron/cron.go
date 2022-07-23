@@ -1,7 +1,6 @@
 package cron
 
 import (
-	"fmt"
 	idxauth "go-webserver/auth"
 	"go-webserver/config"
 	"io/ioutil"
@@ -35,8 +34,9 @@ func (c *cronStruct) SetupConfig(config *config.Configuration) {
 	c.config = config
 }
 func (c *cronStruct) Scheduler() {
-	s := gocron.NewScheduler(time.UTC)
-	_, err := s.Every(7).Week().Do(func() {
+	log.Println("cron will start every day at " + c.config.Kafka.CronTime)
+	s := gocron.NewScheduler(time.Local)
+	_, err := s.Every(1).Day().At(c.config.Kafka.CronTime).Do(func() {
 		c.sendToken()
 	})
 
@@ -64,11 +64,16 @@ func (c *cronStruct) sendToken() {
 
 	res, _ := http.DefaultClient.Do(req)
 
-	defer res.Body.Close()
 	body, _ := ioutil.ReadAll(res.Body)
 
-	fmt.Println(res)
-	fmt.Println(string(body))
+	defer res.Body.Close()
+
+	if res.StatusCode != 200 {
+		log.Println("error creating token :" + string(body))
+	} else {
+		log.Println("succes create token")
+	}
+
 }
 
 func CronScheduler() CronController {
